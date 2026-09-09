@@ -45,7 +45,7 @@ main (int argc, char *argv[])
 
 	/**** Paso 2: Conectar al servidor ****/		
 
-	/* Cargar la direcci�n */
+	/* Cargar la direccio */
 	direccion.sin_family = AF_INET; /* socket familia INET */
 	direccion.sin_addr.s_addr = inet_addr(servidor_ip);
 	direccion.sin_port = htons(atoi(servidor_puerto));
@@ -56,7 +56,7 @@ main (int argc, char *argv[])
 		close(s);
 		return 1;
 	}
-	printf("Conexi�n establecida\n\r");
+	printf("Conexio establecida\n\r");
 
 	/**** Paso 3: Enviar mensaje ****/
 
@@ -86,7 +86,7 @@ main (int argc, char *argv[])
 
 	/**** Paso 5: Cerrar el socket ****/
 	close(s);
-	printf("Socket cerrado. Comunicaci�n finalizada\n\r");
+	printf("Socket cerrado. Comunicacio finalizada\n\r");
 
 	return 0;
 }

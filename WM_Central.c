@@ -12,7 +12,7 @@ int s; /* socket */
 void
 finalizar (int senyal)
 {
-	printf("Recibida la se�al de fin (cntr-C)\n\r");
+	printf("Recibida la señl de fin (cntr-C)\n\r");
 	close(s); /* cerrar para que accept termine con un error y salir del bucle principal */
 }
 
@@ -50,7 +50,7 @@ main (int argc, char *argv[])
 	}
 	printf("Socket abierto\n\r");
 
-	/**** Paso 2: Establecer la direcci�n (puerto) de escucha ****/
+	/**** Paso 2: Establecer la direccio (puerto) de escucha ****/
 
 	dir_servidor.sin_family = AF_INET;
 	dir_servidor.sin_port = htons(atoi(servidor_puerto));
@@ -79,7 +79,7 @@ main (int argc, char *argv[])
 
 	while (1)
 	{
-		fprintf(stderr, "Esperando conexi�n en el puerto %s...\n\r", servidor_puerto);
+		fprintf(stderr, "Esperando conexion el puerto %s...\n\r", servidor_puerto);
 		long_dir_cliente = sizeof (dir_cliente);
 		s2 = accept (s, (struct sockaddr *)&dir_cliente, &long_dir_cliente);
 		contador++;
@@ -128,7 +128,7 @@ main (int argc, char *argv[])
 		}
 		else /* soy el padre */
 		{
-			close(s2); /* el padre no usa esta conexi�n */
+			close(s2); /* el padre no usa esta conexio */
 		}
 
 	}
