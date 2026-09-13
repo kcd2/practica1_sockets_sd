@@ -93,6 +93,5 @@ int main (int argc, char *argv[])
     printf("Socket cerrado. Registro finalizado\n");
 
     return 0;
->>>>>>> origin/main
 }
 /*Limpié todos los retornos de carro '\r\n' de los printf/fprintf dejandolos en '\n' */
