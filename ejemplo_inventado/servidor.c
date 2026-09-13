@@ -20,7 +20,8 @@ int
 main (int argc, char *argv[])
 {
 	char *servidor_puerto;
-	char mensaje[1024], respuesta[]="Gracias por tu mensaje";
+	char mensaje[1024], respuesta[1024];
+    char *operacion, *str_n1, *str_n2;
 	struct sockaddr_in dir_servidor, dir_cliente;
 	unsigned int long_dir_cliente;
 	int s2;
@@ -105,9 +106,36 @@ main (int argc, char *argv[])
 				fprintf(stderr, "Error leyendo el mensaje\n\r");
 				exit(1);
 			}
+			
+			
 			mensaje[recibidos] = '\0'; /* pongo el final de cadena */
-			printf("Mensaje recibido [%d]: %s\n\r", recibidos, mensaje);
+            mensaje[strcspn(mensaje, "\n")] = 0; /* Limpiar salto de linea para strtok */
+            printf("Mensaje recibido [%d]: %s\n\r", recibidos, mensaje);
 
+            // INICIO LOGICA CALCULADORA
+            operacion = strtok(mensaje, "#");
+            str_n1 = strtok(NULL, "#");
+            str_n2 = strtok(NULL, "#");
+
+            if(operacion != NULL && str_n1 != NULL && str_n2 != NULL){
+                int n1 = atoi(str_n1); /* Convertir el texto a numero real */
+                int n2 = atoi(str_n2);
+                
+                if(strcmp(operacion, "SUMA") == 0){
+                    printf(">>> Calculando SUMA: %d + %d <<<\n\r", n1, n2);
+                    snprintf(respuesta, sizeof(respuesta), "RESULTADO#%d\n", n1 + n2);
+                }
+                else if(strcmp(operacion, "RESTA") == 0){
+                    printf(">>> Calculando RESTA: %d - %d <<<\n\r", n1, n2);
+                    snprintf(respuesta, sizeof(respuesta), "RESULTADO#%d\n", n1 - n2);
+                }
+                else{
+                    snprintf(respuesta, sizeof(respuesta), "ERROR#Operacion no reconocida\n");
+                }
+            }else{
+                snprintf(respuesta, sizeof(respuesta), "ERROR#Formato incorrecto\n");
+            }
+            //FIN LOGICA CALCULADORA
 
 			/**** Paso 6: Enviar respuesta ****/
 
