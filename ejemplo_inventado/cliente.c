@@ -12,26 +12,28 @@ main (int argc, char *argv[])
 {
 	char *servidor_ip;
 	char *servidor_puerto;
-	char *mensaje, respuesta[1024];
+	char mensaje[1024], respuesta[1024];
+	char *operacion, *num1, *num2;
 	struct sockaddr_in direccion;
 	int s;
 	int n, enviados, recibidos;
 
 	/* Comprobar los argumentos */
-	if (argc !=  4)
+	if (argc != 6)
 	{
-		fprintf(stderr, "Error. Debe indicar la direccion del servidor (IP y Puerto) y el mensaje a enviar\r\n");
-		fprintf(stderr, "Sintaxis: %s <ip> <puerto> <mensaje>\n\r", argv[0]);
-		fprintf(stderr, "Ejemplo : %s 192.168.6.7 8574 \"Esto es un mensaje\"\n\r", argv[0]);
+		fprintf(stderr, "Error. Faltan parametros para la calculadora.\n");
+		fprintf(stderr, "Sintaxis: %s <ip> <puerto> <operacion> <num1> <num2>\n", argv[0]);
 		return 1;
 	}
-
 	/* Tomar los argumentos */		
 	servidor_ip = argv[1];
 	servidor_puerto = argv[2];
-	mensaje = argv[3];
+	operacion = argv[3];
+	num1 = argv[4];
+	num2 = argv[5];
 
-	printf("\n\rEnviar mensaje \"%s\" a %s:%s...\n\r\n\r", mensaje, servidor_ip, servidor_puerto);
+	snprintf(mensaje, sizeof(mensaje), "%s#%s#%s\n", operacion, num1, num2);
+	printf("Enviando peticion de calculo...\n");
 
 	/**** Paso 1: Abrir el socket ****/
 
@@ -75,7 +77,7 @@ main (int argc, char *argv[])
 
 	n = sizeof(respuesta) - 1;
 	recibidos = read(s, respuesta, n);
-	if (recibidos == 1)
+	if (recibidos == -1)
 	{
 		fprintf(stderr, "Error recibiendo respuesta\n\r");
 		close(s);
