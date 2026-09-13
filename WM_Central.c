@@ -155,4 +155,3 @@ main (int argc, char *argv[])
 	printf("Socket cerrado\n\r");
 	return 0;
 }
-
