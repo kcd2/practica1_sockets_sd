@@ -56,7 +56,7 @@ main (int argc, char *argv[])
 		close(s);
 		return 1;
 	}
-	printf("Conexio establecida\n\r");
+	printf("Conexion establecida\n\r");
 
 	/**** Paso 3: Enviar mensaje ****/
 

@@ -50,7 +50,7 @@ main (int argc, char *argv[])
 	}
 	printf("Socket abierto\n\r");
 
-	/**** Paso 2: Establecer la direccio (puerto) de escucha ****/
+	/**** Paso 2: Establecer la direccion(puerto) de escucha ****/
 
 	dir_servidor.sin_family = AF_INET;
 	dir_servidor.sin_port = htons(atoi(servidor_puerto));
@@ -128,7 +128,7 @@ main (int argc, char *argv[])
 		}
 		else /* soy el padre */
 		{
-			close(s2); /* el padre no usa esta conexio */
+			close(s2); /* el padre no usa esta conexion*/
 		}
 
 	}
