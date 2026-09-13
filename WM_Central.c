@@ -20,7 +20,8 @@ int
 main (int argc, char *argv[])
 {
 	char *servidor_puerto;
-	char mensaje[1024], respuesta[]="Gracias por tu mensaje";
+	char mensaje[1024], respuesta[1024]="Gracias por tu mensaje";
+	char *tipo_mensaje, *id_estacion, *ubicacion; //variables añadidas para cortar el texto
 	struct sockaddr_in dir_servidor, dir_cliente;
 	unsigned int long_dir_cliente;
 	int s2;
@@ -106,8 +107,24 @@ main (int argc, char *argv[])
 				exit(1);
 			}
 			mensaje[recibidos] = '\0'; /* pongo el final de cadena */
+			mensaje[strcspn(mensaje, "\n")] = 0; //limpiamos el salto de linea pra que strtok no se vea afectado
 			printf("Mensaje recibido [%d]: %s\n\r", recibidos, mensaje);
 
+			//validacion del protocolo
+			tipo_mensaje = strtok(mensaje, "#");
+			id_estacion = strtok(NULL, "#");
+			ubicacion = strtok(NULL, "#");
+
+			if(tipo_mensaje != NULL && id_estacion != NULL && ubicacion != NULL){
+				if(strcmp(tipo_mensaje, "REGISTRO") == 0){
+					printf(">>> Estacion registrada: %s en %s <<<\n\r", id_estacion, ubicacion);
+					snprintf(respuesta, sizeof(respuesta), "STATUS#OK#Estacion registrada correctamente\n");
+				}else{
+					snprintf(respuesta, sizeof(respuesta), "STATUS#ERROR#Comando no reconocido\n");
+				}
+			}else{
+				snprintf(respuesta, sizeof(respuesta), "STATUS#ERROR#Formato de trama incorrecto\n");
+			}
 
 			/**** Paso 6: Enviar respuesta ****/
 
