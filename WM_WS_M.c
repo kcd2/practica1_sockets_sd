@@ -1,3 +1,4 @@
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -7,87 +8,90 @@
 #include <unistd.h>
 #include <string.h>
 
-int
-main (int argc, char *argv[])
+int main (int argc, char *argv[])
 {
-	char *servidor_ip;
-	char *servidor_puerto;
-	char *mensaje, respuesta[1024];
-	struct sockaddr_in direccion;
-	int s;
-	int n, enviados, recibidos;
+    char *servidor_ip;
+    char *servidor_puerto;
+    char *id_estacion;
+    char *ubicacion;
+    char mensaje[1024];
+    char respuesta[1024];
+    
+    struct sockaddr_in direccion;
+    int s;
+    int n, enviados, recibidos;
 
-	/* Comprobar los argumentos */
-	if (argc !=  4)
-	{
-		fprintf(stderr, "Error. Debe indicar la direccion del servidor (IP y Puerto) y el mensaje a enviar\r\n");
-		fprintf(stderr, "Sintaxis: %s <ip> <puerto> <mensaje>\n\r", argv[0]);
-		fprintf(stderr, "Ejemplo : %s 192.168.6.7 8574 \"Esto es un mensaje\"\n\r", argv[0]);
-		return 1;
-	}
+   
+    if (argc != 5)
+    {
+        fprintf(stderr, "Error. Faltan parametros de conexion y registro.\n");
+        fprintf(stderr, "Sintaxis: %s <ip> <puerto> <id_estacion> <ubicacion>\n", argv[0]);
+        fprintf(stderr, "Ejemplo : %s 127.0.0.1 9999 WS-04 \"River Park\"\n", argv[0]);
+        return 1;
+    }
 
-	/* Tomar los argumentos */		
-	servidor_ip = argv[1];
-	servidor_puerto = argv[2];
-	mensaje = argv[3];
+    
+    servidor_ip = argv[1];
+    servidor_puerto = argv[2];
+    id_estacion = argv[3];
+    ubicacion = argv[4];
 
-	printf("\n\rEnviar mensaje \"%s\" a %s:%s...\n\r\n\r", mensaje, servidor_ip, servidor_puerto);
+    
+    snprintf(mensaje, sizeof(mensaje), "REGISTRO#%s#%s\n", id_estacion, ubicacion);
 
-	/**** Paso 1: Abrir el socket ****/
+    printf("Intentando registrar [%s - %s] en %s:%s...\n", id_estacion, ubicacion, servidor_ip, servidor_puerto);
 
-	s = socket(AF_INET, SOCK_STREAM, 0); /* creo el socket */
-	if (s == -1)
-	{
-		fprintf(stderr, "Error. No se puede abrir el socket\n\r");
-		return 1;
-	}
-	printf("Socket abierto\n\r");
+    /**** Paso 1: Abrir el socket ****/
+    s = socket(AF_INET, SOCK_STREAM, 0);
+    if (s == -1)
+    {
+        fprintf(stderr, "Error. No se puede abrir el socket\n");
+        return 1;
+    }
+    printf("Socket abierto\n");
 
-	/**** Paso 2: Conectar al servidor ****/		
+    /**** Conectar al servidor ****/
+    direccion.sin_family = AF_INET;
+    direccion.sin_addr.s_addr = inet_addr(servidor_ip);
+    direccion.sin_port = htons(atoi(servidor_puerto));
+    
+    if (connect(s, (struct sockaddr *)&direccion, sizeof (direccion)) == -1)
+    {
+        fprintf(stderr, "Error. No se puede conectar al servidor\n");
+        close(s);
+        return 1;
+    }
+    printf("Conexion establecida\n");
 
-	/* Cargar la direcci�n */
-	direccion.sin_family = AF_INET; /* socket familia INET */
-	direccion.sin_addr.s_addr = inet_addr(servidor_ip);
-	direccion.sin_port = htons(atoi(servidor_puerto));
-	
-	if (connect(s, (struct sockaddr *)&direccion, 	sizeof (direccion)) == -1)
-	{
-		fprintf(stderr, "Error. No se puede conectar al servidor\n\r");
-		close(s);
-		return 1;
-	}
-	printf("Conexi�n establecida\n\r");
+    /**** Enviar mensaje ****/
+    n = strlen(mensaje);
+    enviados = write(s, mensaje, n);
+    if (enviados == -1 || enviados < n)
+    {
+        fprintf(stderr, "Error enviando la trama de registro\n");
+        close(s);
+        return 1;
+    }
+    printf("Trama enviada: %s", mensaje);
 
-	/**** Paso 3: Enviar mensaje ****/
+    /****  Recibir respuesta ****/
+    n = sizeof(respuesta) - 1;
+    recibidos = read(s, respuesta, n);
+    
+    /* Correccion de bug de plantilla (tenia "recibidos == 1", corregido a "== -1") */
+    if (recibidos == -1)
+    {
+        fprintf(stderr, "Error recibiendo respuesta\n");
+        close(s);
+        return 1;
+    }
+    respuesta[recibidos] = '\0';
+    printf("Respuesta de WM_Central: %s\n", respuesta);
 
-	n = strlen(mensaje);
-	enviados = write(s, mensaje, n);
-	if (enviados == -1 || enviados < n)
-	{
-		fprintf(stderr, "Error enviando el mensaje\n\r");
-		close(s);
-		return 1;
-	}
+    /**** Cerrar el socket ****/
+    close(s);
+    printf("Socket cerrado. Registro finalizado\n");
 
-	printf("Mensaje enviado\n\r");
-
-	/**** Paso 4: Recibir respuesta ****/
-
-	n = sizeof(respuesta) - 1;
-	recibidos = read(s, respuesta, n);
-	if (recibidos == 1)
-	{
-		fprintf(stderr, "Error recibiendo respuesta\n\r");
-		close(s);
-		return 1;
-	}
-	respuesta[recibidos] = '\0';
-	printf("Respuesta [%d bytes]: %s\n\r", recibidos, respuesta);
-
-	/**** Paso 5: Cerrar el socket ****/
-	close(s);
-	printf("Socket cerrado. Comunicaci�n finalizada\n\r");
-
-	return 0;
+    return 0;
 }
-
+/*Limpié todos los retornos de carro '\r\n' de los printf/fprintf dejandolos en '\n' */
