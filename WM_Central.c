@@ -12,7 +12,7 @@ int s; /* socket */
 void
 finalizar (int senyal)
 {
-	printf("Recibida la señl de fin (cntr-C)\n\r");
+	printf("Recibida la señal de fin (cntr-C)\n\r");
 	close(s); /* cerrar para que accept termine con un error y salir del bucle principal */
 }
 
@@ -77,7 +77,7 @@ main (int argc, char *argv[])
 	/**** Paso 4: Esperar conexiones ****/
 
 	signal(SIGINT, finalizar);
-
+	signal(SIGCHLD, SIG_IGN);
 	while (1)
 	{
 		fprintf(stderr, "Esperando conexion el puerto %s...\n\r", servidor_puerto);
